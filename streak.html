@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Streak — Goal Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700;9..144,800;9..144,900&family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #faf5ec;
+      --bg-card: #ffffff;
+      --bg-card-hover: #fffdf9;
+      --border: rgba(160, 100, 40, 0.1);
+      --text: #1e1520;
+      --text-secondary: #6d6375;
+      --accent: #e85a10;
+      --accent-hover: #d04e0a;
+      --accent-light: #ff8040;
+      --accent-bg: rgba(232, 90, 16, 0.07);
+      --accent-bg-strong: rgba(232, 90, 16, 0.14);
+      --yellow: #d49508;
+      --red: #dc3545;
+      --green: #1d8a48;
+      --green-bg: rgba(29, 138, 72, 0.1);
+      --modal-bg: rgba(30, 20, 10, 0.45);
+      --shadow: 0 2px 16px rgba(80, 40, 0, 0.06);
+      --shadow-hover: 0 6px 28px rgba(80, 40, 0, 0.1);
+      --radius: 18px;
+      --flame-outer: #d93d04;
+      --flame-mid: #f06a10;
+      --flame-inner: #f5a030;
+      --flame-core: #ffe080;
+    }
+
+    .dark {
+      --bg: #0a0910;
+      --bg-card: #15131e;
+      --bg-card-hover: #1c1a28;
+      --border: rgba(255, 130, 50, 0.07);
+      --text: #ede5d6;
+      --text-secondary: #8a8296;
+      --accent: #ff6a28;
+      --accent-hover: #ff7e42;
+      --accent-light: #ff9955;
+      --accent-bg: rgba(255, 106, 40, 0.1);
+      --accent-bg-strong: rgba(255, 106, 40, 0.18);
+      --yellow: #ffc83d;
+      --red: #ff4c4c;
+      --green: #4ade80;
+      --green-bg: rgba(74, 222, 128, 0.12);
+      --modal-bg: rgba(0, 0, 0, 0.65);
+      --shadow: 0 2px 20px rgba(0, 0, 0, 0.25);
+      --shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.35);
+      --flame-outer: #e04500;
+      --flame-mid: #ff7020;
+      --flame-inner: #ffb040;
+      --flame-core: #fff0a0;
+    }
+
+    html { font-size: 16px; }
+
+    body {
+      font-family: 'Lexend', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background 0.4s, color 0.4s;
+    }
+
+    #app {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 28px 18px 60px;
+    }
+
+    /* ---- HEADER ---- */
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 36px;
+      gap: 16px;
+    }
+
+    .app-title {
+      font-family: 'Fraunces', serif;
+      font-weight: 800;
+      font-size: 2rem;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, var(--accent), var(--yellow));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .app-subtitle {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+      margin-top: 2px;
+    }
+
+    /* ---- BUTTONS ---- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Lexend', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.88rem;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      padding: 11px 20px;
+      box-shadow: 0 2px 12px rgba(232, 90, 16, 0.25);
+    }
+    .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+
+    .btn-ghost {
+      background: var(--accent-bg);
+      color: var(--accent);
+      padding: 8px 14px;
+    }
+    .btn-ghost:hover { background: var(--accent-bg-strong); }
+
+    .btn-danger {
+      background: rgba(220, 53, 69, 0.08);
+      color: var(--red);
+      padding: 8px 14px;
+    }
+    .btn-danger:hover { background: rgba(220, 53, 69, 0.16); }
+
+    .btn-success {
+      background: var(--green-bg);
+      color: var(--green);
+      padding: 10px 18px;
+    }
+    .btn-success:hover { opacity: 0.85; }
+
+    .btn-mark {
+      background: var(--accent);
+      color: #fff;
+      padding: 10px 18px;
+      width: 100%;
+      justify-content: center;
+      font-size: 0.9rem;
+    }
+    .btn-mark:hover { background: var(--accent-hover); }
+
+    .btn-icon {
+      background: transparent;
+      color: var(--text-secondary);
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      font-size: 0.85rem;
+    }
+    .btn-icon:hover { background: var(--accent-bg); color: var(--accent); }
+
+    /* ---- GOALS GRID ---- */
+    .goals-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 22px;
+    }
+
+    @media (min-width: 640px) {
+      .goals-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* ---- GOAL CARD ---- */
+    .goal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      transition: all 0.3s;
+      animation: cardIn 0.5s ease-out backwards;
+    }
+    .goal-card:hover { box-shadow: var(--shadow-hover); border-color: rgba(232, 90, 16, 0.15); }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(24px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 4px;
+    }
+
+    .goal-title {
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+    }
+
+    .goal-desc {
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      font-weight: 300;
+      margin-bottom: 16px;
+      line-height: 1.45;
+    }
+
+    /* ---- FLAME SECTION ---- */
+    .flame-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 14px 0 18px;
+    }
+
+    .flame-wrap {
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+
+    .flame-wrap[data-level="0"] { width: 30px; height: 40px; }
+    .flame-wrap[data-level="1"] { width: 30px; height: 42px; }
+    .flame-wrap[data-level="2"] { width: 38px; height: 54px; }
+    .flame-wrap[data-level="3"] { width: 46px; height: 64px; }
+    .flame-wrap[data-level="4"] { width: 54px; height: 74px; }
+    .flame-wrap[data-level="5"] { width: 62px; height: 86px; }
+
+    .flame-glow {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 140%;
+      height: 70%;
+      border-radius: 50%;
+      pointer-events: none;
+      transition: all 0.5s;
+    }
+
+    .flame-wrap[data-level="0"] .flame-glow { display: none; }
+    .flame-wrap[data-level="1"] .flame-glow { display: none; }
+    .flame-wrap[data-level="2"] .flame-glow { background: radial-gradient(ellipse, rgba(255, 120, 40, 0.1) 0%, transparent 70%); }
+    .flame-wrap[data-level="3"] .flame-glow { background: radial-gradient(ellipse, rgba(255, 120, 40, 0.18) 0%, transparent 70%); }
+    .flame-wrap[data-level="4"] .flame-glow { background: radial-gradient(ellipse, rgba(255, 120, 40, 0.28) 0%, transparent 70%); }
+    .flame-wrap[data-level="5"] .flame-glow { background: radial-gradient(ellipse, rgba(255, 120, 40, 0.38) 0%, transparent 70%); animation: pulseGlow 2s ease-in-out infinite; }
+
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 1; transform: translateX(-50%) scale(1); }
+      50% { opacity: 0.7; transform: translateX(-50%) scale(1.12); }
+    }
+
+    .flame-body {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .fl {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      border-radius: 50% 50% 50% 50% / 65% 65% 35% 35%;
+    }
+
+    .fl.outer {
+      width: 80%;
+      height: 90%;
+      background: linear-gradient(to top, var(--flame-outer), var(--flame-mid));
+      transform: translateX(-50%);
+      animation: flickOuter 0.6s ease-in-out infinite alternate;
+    }
+
+    .fl.mid {
+      width: 58%;
+      height: 72%;
+      background: linear-gradient(to top, var(--flame-mid), var(--flame-inner));
+      transform: translateX(-50%);
+      animation: flickMid 0.5s ease-in-out infinite alternate;
+    }
+
+    .fl.inner {
+      width: 38%;
+      height: 54%;
+      background: linear-gradient(to top, var(--flame-inner), var(--flame-core));
+      transform: translateX(-50%);
+      animation: flickInner 0.45s ease-in-out infinite alternate;
+    }
+
+    .fl.core {
+      width: 20%;
+      height: 32%;
+      background: var(--flame-core);
+      transform: translateX(-50%);
+      animation: flickCore 0.35s ease-in-out infinite alternate;
+      border-radius: 50%;
+    }
+
+    @keyframes flickOuter {
+      0% { transform: translateX(-50%) scaleX(1) scaleY(1); }
+      100% { transform: translateX(-52%) scaleX(0.94) scaleY(1.05); }
+    }
+    @keyframes flickMid {
+      0% { transform: translateX(-50%) scaleX(1) scaleY(1); }
+      100% { transform: translateX(-48%) scaleX(1.06) scaleY(0.95); }
+    }
+    @keyframes flickInner {
+      0% { transform: translateX(-50%) scaleX(1) scaleY(1) translateY(0); }
+      100% { transform: translateX(-51%) scaleX(0.92) scaleY(1.06) translateY(-2px); }
+    }
+    @keyframes flickCore {
+      0% { transform: translateX(-50%) scale(1); opacity: 0.9; }
+      100% { transform: translateX(-50%) scale(0.85); opacity: 1; }
+    }
+
+    /* Level 0 — no flame */
+    .flame-wrap[data-level="0"] .flame-body { opacity: 0.18; filter: grayscale(1); }
+    .flame-wrap[data-level="0"] .fl { animation: none !important; }
+
+    /* Level 5 — powerful */
+    .flame-wrap[data-level="5"] .flame-body { filter: brightness(1.15); }
+
+    /* Sparks (level 4+) */
+    .sparks { position: absolute; bottom: 50%; left: 50%; transform: translateX(-50%); width: 100%; pointer-events: none; display: none; }
+    .flame-wrap[data-level="4"] .sparks,
+    .flame-wrap[data-level="5"] .sparks { display: block; }
+
+    .spark {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--flame-core);
+    }
+    .spark:nth-child(1) { left: 25%; animation: sparkUp 1.2s ease-out infinite; }
+    .spark:nth-child(2) { left: 55%; animation: sparkUp 1.5s ease-out infinite 0.3s; }
+    .spark:nth-child(3) { left: 75%; animation: sparkUp 1s ease-out infinite 0.7s; }
+    .spark:nth-child(4) { left: 40%; animation: sparkUp 1.8s ease-out infinite 0.5s; }
+
+    .flame-wrap[data-level="5"] .spark { width: 4px; height: 4px; }
+
+    @keyframes sparkUp {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-36px) scale(0); opacity: 0; }
+    }
+
+    .streak-count {
+      font-family: 'Fraunces', serif;
+      font-weight: 900;
+      font-size: 2.2rem;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .streak-count[data-level="0"] { color: var(--text-secondary); }
+
+    .streak-label {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+      margin-top: 2px;
+    }
+
+    /* ---- TODAY BUTTON ---- */
+    .today-action { margin: 8px 0 18px; width: 100%; }
+
+    /* ---- CALENDAR ---- */
+    .calendar { margin-top: 4px; }
+
+    .cal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .cal-month {
+      font-family: 'Fraunces', serif;
+      font-weight: 600;
+      font-size: 0.92rem;
+    }
+
+    .cal-nav {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      font-size: 0.75rem;
+    }
+    .cal-nav:hover { background: var(--accent-bg); color: var(--accent); }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 3px;
+      text-align: center;
+    }
+
+    .cal-day-name {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      padding: 4px 0 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .cal-cell {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      font-weight: 400;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.15s;
+      position: relative;
+      color: var(--text);
+    }
+
+    .cal-cell:hover:not(.empty):not(.disabled) { background: var(--accent-bg); }
+
+    .cal-cell.empty { cursor: default; }
+
+    .cal-cell.disabled {
+      color: var(--text-secondary);
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .cal-cell.completed {
+      background: var(--accent-bg-strong);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .cal-cell.streak-day {
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+    }
+    .cal-cell.streak-day:hover { background: var(--accent-hover); }
+
+    .cal-cell.today:not(.streak-day):not(.completed) {
+      box-shadow: inset 0 0 0 2px var(--accent);
+      font-weight: 600;
+    }
+
+    .cal-cell.today.completed:not(.streak-day) {
+      box-shadow: inset 0 0 0 2px var(--accent);
+    }
+
+    .cal-cell.today.streak-day {
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.4);
+    }
+
+    /* ---- CARD FOOTER ---- */
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .start-date {
+      font-size: 0.74rem;
+      color: var(--text-secondary);
+      font-weight: 300;
+    }
+
+    .card-actions { display: flex; gap: 6px; }
+
+    /* ---- MODAL ---- */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--modal-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 18px;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 16px 60px rgba(0, 0, 0, 0.18);
+      padding: 28px;
+      width: 100%;
+      max-width: 420px;
+      animation: modalIn 0.3s ease-out;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-title {
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      font-size: 1.25rem;
+      margin-bottom: 20px;
+    }
+
+    .form-group { margin-bottom: 16px; }
+
+    .form-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .form-input,
+    .form-textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-family: 'Lexend', sans-serif;
+      font-size: 16px;
+      color: var(--text);
+      transition: border-color 0.2s;
+    }
+    .form-input:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .form-textarea { resize: vertical; min-height: 68px; }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .modal-cancel {
+      background: transparent;
+      color: var(--text-secondary);
+      border: none;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-family: 'Lexend', sans-serif;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .modal-cancel:hover { background: var(--accent-bg); color: var(--text); }
+
+    /* ---- EMPTY STATE ---- */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 60px 20px;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .empty-flame-wrap {
+      position: relative;
+      width: 60px;
+      height: 80px;
+      margin-bottom: 20px;
+      opacity: 0.25;
+    }
+    .empty-flame-wrap .fl { background: var(--text-secondary) !important; animation: none !important; }
+
+    .empty-title {
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      font-size: 1.3rem;
+      margin-bottom: 6px;
+    }
+
+    .empty-desc {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      font-weight: 300;
+      margin-bottom: 24px;
+      max-width: 280px;
+    }
+
+    /* ---- TOAST ---- */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 22px;
+      font-size: 0.85rem;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+      z-index: 200;
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ---- COMPLETION PULSE ---- */
+    @keyframes completePulse {
+      0% { box-shadow: 0 0 0 0 rgba(232, 90, 16, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(232, 90, 16, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(232, 90, 16, 0); }
+    }
+    .cal-cell.pulse { animation: completePulse 0.5s ease-out; }
+
+    /* ---- RESPONSIVE ---- */
+    @media (max-width: 480px) {
+      #app { padding: 20px 14px 50px; }
+      .app-title { font-size: 1.6rem; }
+      .btn-primary span { display: none; }
+      .btn-primary { padding: 11px 14px; }
+      .goal-card { padding: 18px; }
+      .streak-count { font-size: 1.9rem; }
+    }
+
+    /* ---- CONFIRM MODAL ---- */
+    .confirm-text {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      line-height: 1.55;
+      margin-bottom: 6px;
+    }
+    .confirm-warn {
+      font-size: 0.8rem;
+      color: var(--red);
+      font-weight: 500;
+    }
+
+    /* ---- LOADING STATE ---- */
+    .loading-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 20px;
+      animation: fadeIn 0.3s ease-out;
+    }
+    .loading-spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-bottom: 16px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .loading-text {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-weight: 300;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <header class="app-header">
+    <div>
+      <h1 class="app-title">Streak</h1>
+      <p class="app-subtitle">Keep your fire alive, day after day</p>
+    </div>
+    <button class="btn btn-primary" id="addGoalBtn">
+      <i class="fa-solid fa-plus"></i>
+      <span>New Goal</span>
+    </button>
+  </header>
+
+  <!-- Loading state shown while IndexedDB loads -->
+  <div id="loading-state" class="loading-state">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Loading your streaks&hellip;</div>
+  </div>
+
+  <main id="goals-container" class="goals-grid" style="display:none"></main>
+  <div id="empty-state" class="empty-state" style="display:none">
+    <div class="empty-flame-wrap">
+      <div class="flame-body">
+        <div class="fl outer"></div>
+        <div class="fl mid"></div>
+        <div class="fl inner"></div>
+        <div class="fl core"></div>
+      </div>
+    </div>
+    <div class="empty-title">No goals yet</div>
+    <p class="empty-desc">Create your first goal and start building streaks that last.</p>
+    <button class="btn btn-primary" id="emptyAddBtn">
+      <i class="fa-solid fa-plus"></i>
+      <span>New Goal</span>
+    </button>
+  </div>
+</div>
+
+<!-- Add Goal Modal -->
+<div id="add-modal" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-title">New Goal</div>
+    <div class="form-group">
+      <label class="form-label" for="goal-title">Title *</label>
+      <input class="form-input" type="text" id="goal-title" placeholder="e.g. Morning Exercise" maxlength="60">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="goal-desc">Description (optional)</label>
+      <textarea class="form-textarea" id="goal-desc" placeholder="What is this goal about?" maxlength="200"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="goal-start">Start Date</label>
+      <input class="form-input" type="date" id="goal-start">
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel" id="cancelAdd">Cancel</button>
+      <button class="btn btn-primary" id="confirmAdd">Create Goal</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div id="confirm-modal" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-title" id="confirm-title">Reset Streak?</div>
+    <p class="confirm-text" id="confirm-text">This will reset your streak counter and clear all completion history for this goal.</p>
+    <p class="confirm-warn" id="confirm-warn">This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="modal-cancel" id="cancelConfirm">Cancel</button>
+      <button class="btn btn-danger" id="doConfirm">Reset</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<script>
+  /* ---- DARK MODE ---- */
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    document.documentElement.classList.add('dark');
+  }
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(event) {
+    if (event.matches) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  });
+
+  /* ======================================================
+     IndexedDB PERSISTENCE LAYER
+     - localStorage/sessionStorage are NOT available in Poe
+     - IndexedDB IS available and persists across sessions
+     ====================================================== */
+  var DB_NAME = 'StreakTrackerDB';
+  var DB_VERSION = 1;
+  var STORE_NAME = 'goals';
+  var META_STORE = 'meta';
+  var dbInstance = null;
+
+  function openDB() {
+    return new Promise(function(resolve, reject) {
+      if (dbInstance) { resolve(dbInstance); return; }
+      var request = indexedDB.open(DB_NAME, DB_VERSION);
+
+      request.onupgradeneeded = function(event) {
+        var db = event.target.result;
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+          db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains(META_STORE)) {
+          db.createObjectStore(META_STORE, { keyPath: 'key' });
+        }
+      };
+
+      request.onsuccess = function(event) {
+        dbInstance = event.target.result;
+        resolve(dbInstance);
+      };
+
+      request.onerror = function() {
+        console.log('IndexedDB open error: ' + JSON.stringify(request.error));
+        reject(request.error);
+      };
+    });
+  }
+
+  /* Serialize a goal for storage (Set -> Array) */
+  function serializeGoal(goal) {
+    return {
+      id: goal.id,
+      title: goal.title,
+      description: goal.description,
+      startDate: goal.startDate,
+      completedDays: Array.from(goal.completedDays)
+    };
+  }
+
+  /* Deserialize a stored goal (Array -> Set), add transient view state */
+  function deserializeGoal(data) {
+    var t = today();
+    return {
+      id: data.id,
+      title: data.title,
+      description: data.description,
+      startDate: data.startDate,
+      completedDays: new Set(data.completedDays),
+      viewMonth: t.getMonth(),
+      viewYear: t.getFullYear()
+    };
+  }
+
+  /* Save ALL goals to IndexedDB */
+  function saveGoals() {
+    return openDB().then(function(db) {
+      return new Promise(function(resolve, reject) {
+        var tx = db.transaction([STORE_NAME, META_STORE], 'readwrite');
+        var store = tx.objectStore(STORE_NAME);
+        var metaStore = tx.objectStore(META_STORE);
+
+        // Clear and re-write all goals
+        store.clear();
+        goals.forEach(function(goal) {
+          store.put(serializeGoal(goal));
+        });
+
+        // Save nextId
+        metaStore.put({ key: 'nextId', value: nextId });
+
+        tx.oncomplete = function() { resolve(); };
+        tx.onerror = function() {
+          console.log('IndexedDB save error: ' + JSON.stringify(tx.error));
+          reject(tx.error);
+        };
+      });
+    }).catch(function(err) {
+      console.log('Save failed: ' + JSON.stringify(err));
+    });
+  }
+
+  /* Load ALL goals from IndexedDB */
+  function loadGoals() {
+    return openDB().then(function(db) {
+      return new Promise(function(resolve, reject) {
+        var tx = db.transaction([STORE_NAME, META_STORE], 'readonly');
+        var store = tx.objectStore(STORE_NAME);
+        var metaStore = tx.objectStore(META_STORE);
+
+        var goalsReq = store.getAll();
+        var metaReq = metaStore.get('nextId');
+
+        tx.oncomplete = function() {
+          var loadedGoals = (goalsReq.result || []).map(deserializeGoal);
+          var savedNextId = metaReq.result ? metaReq.result.value : 1;
+          resolve({ goals: loadedGoals, nextId: savedNextId });
+        };
+
+        tx.onerror = function() {
+          console.log('IndexedDB load error: ' + JSON.stringify(tx.error));
+          reject(tx.error);
+        };
+      });
+    });
+  }
+
+  /* ---- STATE ---- */
+  var goals = [];
+  var nextId = 1;
+  var pendingConfirm = null; // { type: 'reset'|'delete', goalId }
+
+  var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var DAYS = ['S','M','T','W','T','F','S'];
+
+  /* ---- HELPERS ---- */
+  function formatDate(d) {
+    var y = d.getFullYear();
+    var m = String(d.getMonth() + 1).padStart(2, '0');
+    var day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+  }
+
+  function parseDate(s) {
+    var parts = s.split('-');
+    return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+  }
+
+  function today() {
+    var d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+
+  function todayStr() {
+    return formatDate(today());
+  }
+
+  function prettyDate(s) {
+    var d = parseDate(s);
+    return MONTHS_SHORT[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+  }
+
+  /* ---- STREAK LOGIC ---- */
+  function calculateStreak(goal) {
+    var t = today();
+    var date = new Date(t);
+
+    if (goal.completedDays.has(formatDate(date))) {
+      var streak = 1;
+      date.setDate(date.getDate() - 1);
+      while (goal.completedDays.has(formatDate(date))) {
+        streak++;
+        date.setDate(date.getDate() - 1);
+      }
+      return streak;
+    }
+
+    // Grace: check from yesterday
+    date.setDate(date.getDate() - 1);
+    if (!goal.completedDays.has(formatDate(date))) {
+      return 0;
+    }
+
+    var streak2 = 1;
+    date.setDate(date.getDate() - 1);
+    while (goal.completedDays.has(formatDate(date))) {
+      streak2++;
+      date.setDate(date.getDate() - 1);
+    }
+    return streak2;
+  }
+
+  function getStreakDays(goal) {
+    var set = new Set();
+    var t = today();
+    var date = new Date(t);
+
+    if (goal.completedDays.has(formatDate(date))) {
+      set.add(formatDate(date));
+      date.setDate(date.getDate() - 1);
+    } else {
+      date.setDate(date.getDate() - 1);
+      if (!goal.completedDays.has(formatDate(date))) return set;
+      set.add(formatDate(date));
+      date.setDate(date.getDate() - 1);
+    }
+
+    while (goal.completedDays.has(formatDate(date))) {
+      set.add(formatDate(date));
+      date.setDate(date.getDate() - 1);
+    }
+    return set;
+  }
+
+  function flameLevel(streak) {
+    if (streak <= 0) return 0;
+    if (streak < 10) return 1;
+    if (streak < 20) return 2;
+    if (streak < 30) return 3;
+    if (streak < 50) return 4;
+    return 5;
+  }
+
+  /* ---- TOAST ---- */
+  var toastTimer = null;
+  function showToast(msg) {
+    var el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function() { el.classList.remove('show'); }, 2200);
+  }
+
+  /* ---- RENDER ---- */
+  function render() {
+    var container = document.getElementById('goals-container');
+    var empty = document.getElementById('empty-state');
+    var loading = document.getElementById('loading-state');
+
+    // Hide loading state
+    if (loading) loading.style.display = 'none';
+
+    if (goals.length === 0) {
+      container.style.display = 'none';
+      empty.style.display = 'flex';
+      return;
+    }
+
+    container.style.display = 'grid';
+    empty.style.display = 'none';
+
+    container.innerHTML = goals.map(function(goal, idx) {
+      var streak = calculateStreak(goal);
+      var level = flameLevel(streak);
+      var streakDays = getStreakDays(goal);
+      var isTodayDone = goal.completedDays.has(todayStr());
+      var startD = parseDate(goal.startDate);
+      var canMarkToday = today() >= startD;
+
+      return '<div class="goal-card" style="animation-delay:' + (idx * 0.07) + 's">' +
+        '<div class="card-header">' +
+          '<div class="goal-title">' + escHtml(goal.title) + '</div>' +
+        '</div>' +
+        (goal.description ? '<div class="goal-desc">' + escHtml(goal.description) + '</div>' : '<div style="height:12px"></div>') +
+
+        '<div class="flame-section">' +
+          '<div class="flame-wrap" data-level="' + level + '">' +
+            '<div class="flame-glow"></div>' +
+            '<div class="flame-body">' +
+              '<div class="fl outer"></div>' +
+              '<div class="fl mid"></div>' +
+              '<div class="fl inner"></div>' +
+              '<div class="fl core"></div>' +
+            '</div>' +
+            '<div class="sparks"><span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span></div>' +
+          '</div>' +
+          '<div class="streak-count" data-level="' + level + '">' + streak + '</div>' +
+          '<div class="streak-label">day' + (streak !== 1 ? 's' : '') + ' streak</div>' +
+        '</div>' +
+
+        '<div class="today-action">' +
+          (canMarkToday ?
+            (isTodayDone ?
+              '<button class="btn btn-success" onclick="toggleDay(' + goal.id + ',\'' + todayStr() + '\')" style="width:100%;justify-content:center"><i class="fa-solid fa-check"></i>&nbsp; Completed Today</button>' :
+              '<button class="btn btn-mark" onclick="toggleDay(' + goal.id + ',\'' + todayStr() + '\')"><i class="fa-solid fa-fire"></i>&nbsp; Mark Today Complete</button>'
+            ) : '') +
+        '</div>' +
+
+        '<div class="calendar">' + renderCalendar(goal, streakDays) + '</div>' +
+
+        '<div class="card-footer">' +
+          '<span class="start-date">Since ' + prettyDate(goal.startDate) + '</span>' +
+          '<div class="card-actions">' +
+            '<button class="btn btn-icon" title="Reset streak" onclick="openConfirm(\'reset\',' + goal.id + ')"><i class="fa-solid fa-rotate-left"></i></button>' +
+            '<button class="btn btn-icon" title="Delete goal" onclick="openConfirm(\'delete\',' + goal.id + ')"><i class="fa-solid fa-trash-can"></i></button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function escHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  /* ---- CALENDAR ---- */
+  function renderCalendar(goal, streakDays) {
+    var year = goal.viewYear;
+    var month = goal.viewMonth;
+    var firstDay = new Date(year, month, 1).getDay();
+    var daysInMonth = new Date(year, month + 1, 0).getDate();
+    var t = today();
+    var tStr = todayStr();
+    var startD = parseDate(goal.startDate);
+
+    var html = '<div class="cal-header">' +
+      '<button class="cal-nav" onclick="navCal(' + goal.id + ',-1)"><i class="fa-solid fa-chevron-left"></i></button>' +
+      '<span class="cal-month">' + MONTHS[month] + ' ' + year + '</span>' +
+      '<button class="cal-nav" onclick="navCal(' + goal.id + ',1)"><i class="fa-solid fa-chevron-right"></i></button>' +
+    '</div>';
+
+    html += '<div class="cal-grid">';
+    DAYS.forEach(function(d) {
+      html += '<div class="cal-day-name">' + d + '</div>';
+    });
+
+    for (var i = 0; i < firstDay; i++) {
+      html += '<div class="cal-cell empty"></div>';
+    }
+
+    for (var d = 1; d <= daysInMonth; d++) {
+      var dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+      var cellDate = new Date(year, month, d);
+      var isCompleted = goal.completedDays.has(dateStr);
+      var isStreak = streakDays.has(dateStr);
+      var isToday = dateStr === tStr;
+      var isDisabled = cellDate < startD || cellDate > t;
+
+      var cls = 'cal-cell';
+      if (isDisabled) cls += ' disabled';
+      else if (isStreak) cls += ' streak-day';
+      else if (isCompleted) cls += ' completed';
+      if (isToday) cls += ' today';
+
+      var click = isDisabled ? '' : ' onclick="toggleDay(' + goal.id + ',\'' + dateStr + '\')"';
+      html += '<div class="' + cls + '"' + click + '>' + d + '</div>';
+    }
+
+    html += '</div>';
+    return html;
+  }
+
+  /* ---- ACTIONS (all save after mutation) ---- */
+  function toggleDay(goalId, dateStr) {
+    var goal = goals.find(function(g) { return g.id === goalId; });
+    if (!goal) return;
+
+    if (goal.completedDays.has(dateStr)) {
+      goal.completedDays.delete(dateStr);
+    } else {
+      goal.completedDays.add(dateStr);
+    }
+    render();
+    saveGoals();
+  }
+
+  function navCal(goalId, dir) {
+    var goal = goals.find(function(g) { return g.id === goalId; });
+    if (!goal) return;
+    goal.viewMonth += dir;
+    if (goal.viewMonth < 0) { goal.viewMonth = 11; goal.viewYear--; }
+    if (goal.viewMonth > 11) { goal.viewMonth = 0; goal.viewYear++; }
+    render();
+    // No need to save — viewMonth/viewYear are transient UI state
+  }
+
+  /* ---- MODALS ---- */
+  function openAddModal() {
+    document.getElementById('goal-title').value = '';
+    document.getElementById('goal-desc').value = '';
+    document.getElementById('goal-start').value = todayStr();
+    document.getElementById('add-modal').style.display = 'flex';
+    setTimeout(function() { document.getElementById('goal-title').focus(); }, 100);
+  }
+
+  function closeAddModal() {
+    document.getElementById('add-modal').style.display = 'none';
+  }
+
+  function createGoal() {
+    var title = document.getElementById('goal-title').value.trim();
+    if (!title) {
+      showToast('Please enter a goal title');
+      return;
+    }
+    var desc = document.getElementById('goal-desc').value.trim();
+    var startVal = document.getElementById('goal-start').value || todayStr();
+    var t = today();
+
+    var goal = {
+      id: nextId++,
+      title: title,
+      description: desc,
+      startDate: startVal,
+      completedDays: new Set(),
+      viewMonth: t.getMonth(),
+      viewYear: t.getFullYear()
+    };
+
+    goals.push(goal);
+    closeAddModal();
+    render();
+    saveGoals();
+    showToast('Goal created!');
+  }
+
+  function openConfirm(type, goalId) {
+    pendingConfirm = { type: type, goalId: goalId };
+    var titleEl = document.getElementById('confirm-title');
+    var textEl = document.getElementById('confirm-text');
+    var warnEl = document.getElementById('confirm-warn');
+    var btnEl = document.getElementById('doConfirm');
+
+    if (type === 'reset') {
+      titleEl.textContent = 'Reset Streak?';
+      textEl.textContent = 'This will reset the streak counter and clear all completion history for this goal.';
+      warnEl.textContent = 'This action cannot be undone.';
+      btnEl.textContent = 'Reset';
+      btnEl.className = 'btn btn-danger';
+    } else {
+      titleEl.textContent = 'Delete Goal?';
+      textEl.textContent = 'This will permanently remove this goal and all its tracking history.';
+      warnEl.textContent = 'This action cannot be undone.';
+      btnEl.textContent = 'Delete';
+      btnEl.className = 'btn btn-danger';
+    }
+
+    document.getElementById('confirm-modal').style.display = 'flex';
+  }
+
+  function closeConfirm() {
+    document.getElementById('confirm-modal').style.display = 'none';
+    pendingConfirm = null;
+  }
+
+  function executeConfirm() {
+    if (!pendingConfirm) return;
+    var goal = goals.find(function(g) { return g.id === pendingConfirm.goalId; });
+
+    if (pendingConfirm.type === 'reset' && goal) {
+      goal.completedDays = new Set();
+      showToast('Streak reset');
+    } else if (pendingConfirm.type === 'delete') {
+      goals = goals.filter(function(g) { return g.id !== pendingConfirm.goalId; });
+      showToast('Goal deleted');
+    }
+
+    closeConfirm();
+    render();
+    saveGoals();
+  }
+
+  /* ---- EVENT LISTENERS ---- */
+  document.getElementById('addGoalBtn').addEventListener('click', openAddModal);
+  document.getElementById('emptyAddBtn').addEventListener('click', openAddModal);
+  document.getElementById('cancelAdd').addEventListener('click', closeAddModal);
+  document.getElementById('confirmAdd').addEventListener('click', createGoal);
+  document.getElementById('cancelConfirm').addEventListener('click', closeConfirm);
+  document.getElementById('doConfirm').addEventListener('click', executeConfirm);
+
+  // Close modals on backdrop click
+  document.getElementById('add-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeAddModal();
+  });
+  document.getElementById('confirm-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeConfirm();
+  });
+
+  // Enter key in form
+  document.getElementById('goal-title').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') createGoal();
+  });
+
+  /* ---- INIT: Load from IndexedDB, then render ---- */
+  loadGoals().then(function(data) {
+    goals = data.goals;
+    nextId = data.nextId;
+    render();
+  }).catch(function(err) {
+    console.log('Failed to load from IndexedDB: ' + JSON.stringify(err));
+    // Still render (empty state) even if DB fails
+    render();
+  });
+</script>
+</body>
+</html>
+
+
+
+
